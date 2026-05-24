@@ -1,0 +1,792 @@
+import React, { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Archive,
+  Beaker,
+  BookOpen,
+  Brush,
+  Camera,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  ClipboardList,
+  Clock3,
+  Crown,
+  Eye,
+  Hand,
+  Heart,
+  HelpCircle,
+  Layers,
+  MapPinned,
+  Microscope,
+  Pickaxe,
+  Puzzle,
+  Ruler,
+  ScanLine,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Sun,
+  Trees,
+  UserRound,
+} from "lucide-react";
+
+const pages = [
+  "封面",
+  "第一道光",
+  "百年接力",
+  "考古现场",
+  "文物图鉴",
+  "前世今生",
+  "修复之路",
+  "两双手",
+  "重要人物",
+  "现场一天",
+  "文明拼图",
+  "小小考古问答",
+  "守护宣言",
+  "未解之问",
+  "尾声",
+];
+
+const timeline = [
+  {
+    year: "1929",
+    title: "偶然发现",
+    text: "广汉月亮湾一带发现玉石器，三星堆考古序幕由此拉开。",
+  },
+  {
+    year: "1934",
+    title: "首次科学发掘",
+    text: "华西协合大学古物博物馆组织考古队进入现场，三星堆开始走向科学考古。",
+  },
+  {
+    year: "1986",
+    title: "一醒惊天下",
+    text: "1、2号祭祀坑出土大量青铜器、金器、玉器，古蜀文明震动学界。",
+  },
+  {
+    year: "2020—2022",
+    title: "新一轮发掘",
+    text: "新发现6座祭祀坑，多学科考古、文保修复和科技检测同步推进。",
+  },
+  {
+    year: "2029",
+    title: "发现百年",
+    text: "从一坑玉器到世界瞩目的古蜀文明，百年接力仍在继续。",
+  },
+];
+
+const tools = [
+  { icon: Brush, name: "毛刷", text: "一点点扫开浮土。动作越轻，留下的信息越完整。", quote: "慢，是为了让历史不被打扰。" },
+  { icon: Ruler, name: "测绘", text: "每一处位置、深度、方向，都要被准确记录。", quote: "坐标，是文物回到现场的路。" },
+  { icon: Camera, name: "影像记录", text: "在文物移动之前，先让现场状态被永久保存。", quote: "拍下这一刻，是为了不让下一步失去依据。" },
+  { icon: ClipboardList, name: "编号", text: "一个编号，就是文物回到历史现场的线索。", quote: "名字可以迟到，编号不能缺席。" },
+  { icon: Microscope, name: "检测", text: "显微之下，泥土、残留物和材料都可能开口说话。", quote: "答案有时藏在肉眼看不见的地方。" },
+  { icon: ShieldCheck, name: "保护", text: "控制温湿度、加固脆弱部位，让出土后的文物安全走向今天。", quote: "出土不是终点，守护才刚开始。" },
+];
+
+const relics = [
+  {
+    name: "青铜纵目面具",
+    tag: "凝望",
+    icon: Eye,
+    color: "青铜绿",
+    pre: "它也许承载着古蜀人关于祖先、神灵与远方的想象。夸张的眼睛，像是在望向人间之外的世界。",
+    now: "经过清理、保护与研究，它成为三星堆最具辨识度的视觉符号之一，也让大众重新理解古蜀文明的想象力。",
+    value: "独特审美与精神世界",
+  },
+  {
+    name: "青铜大立人",
+    tag: "庄严",
+    icon: UserRound,
+    color: "深铜色",
+    pre: "高冠、长衣、环握双手，让人联想到仪式、权力与神圣空间。它也许曾站在古蜀祭祀想象的中心。",
+    now: "今天，人们通过它观察古蜀人的服饰、姿态、礼仪和社会结构。",
+    value: "古蜀礼仪与身份象征",
+  },
+  {
+    name: "青铜神树",
+    tag: "连接",
+    icon: Trees,
+    color: "铜金色",
+    pre: "树、鸟、龙与枝叶构成通向天地的象征空间，像古蜀人对宇宙秩序的想象。",
+    now: "从残片到重新挺立，它的修复展示了文保工作的耐心、技术和判断。",
+    value: "天地想象与修复奇迹",
+  },
+  {
+    name: "金杖",
+    tag: "权力",
+    icon: Crown,
+    color: "暗金色",
+    pre: "金色与图像可能共同指向权力、仪式和神圣性，是古蜀社会秩序的重要象征。",
+    now: "它帮助研究者思考古蜀的权力表达，以及三星堆与其他区域文明的关系。",
+    value: "王权、神权与图像叙事",
+  },
+  {
+    name: "金面具",
+    tag: "光芒",
+    icon: Sparkles,
+    color: "金色",
+    pre: "金色或许与身份、祭祀和神圣感有关，也让古蜀人的精神世界多了一层光。",
+    now: "薄而脆弱的金器，需要极其谨慎的提取、展开、加固和保存。",
+    value: "材料技术与精神象征",
+  },
+  {
+    name: "青铜太阳轮",
+    tag: "日光",
+    icon: Sun,
+    color: "日轮金",
+    pre: "圆形与放射状结构容易让人联想到太阳、光明与时间秩序。",
+    now: "它让公众直观感受三星堆文物中强烈的符号性与视觉张力。",
+    value: "太阳崇拜与符号表达",
+  },
+  {
+    name: "青铜扭头跪坐人像",
+    tag: "姿态",
+    icon: Hand,
+    color: "墨绿色",
+    pre: "跪坐、扭头、合手的姿态，让人感到某种强烈的仪式瞬间。",
+    now: "新一轮发掘中，它让人们看见三星堆青铜人像更加丰富的动作和表情。",
+    value: "仪式动作与新发现",
+  },
+  {
+    name: "玉璋与玉琮",
+    tag: "礼器",
+    icon: Layers,
+    color: "玉白色",
+    pre: "玉器可能参与礼仪、祭祀或权力表达，也是区域文化交流的重要线索。",
+    now: "它们帮助研究者理解三星堆与中原、长江流域等文化之间的联系。",
+    value: "礼制线索与文明交流",
+  },
+  {
+    name: "象牙与有机遗存",
+    tag: "脆弱",
+    icon: Archive,
+    color: "象牙白",
+    pre: "象牙、丝绸残留等有机材料，可能参与祭祀场景，也提示古蜀资源流动与社会活动。",
+    now: "它们对保存条件要求极高，体现了现代考古与实验室保护的重要性。",
+    value: "环境信息与科技保护",
+  },
+];
+
+const repairSteps = [
+  { name: "出土", desc: "确认位置，判断环境，避免文物离开土层时受到二次损伤。", icon: Layers },
+  { name: "编号", desc: "建立身份，让每件器物都有可追溯记录。", icon: Archive },
+  { name: "清理", desc: "去除浮土与附着物，同时保护表面纹理和残留信息。", icon: Brush },
+  { name: "检测", desc: "通过科技手段分析材料、结构、病害和保存状态。", icon: Beaker },
+  { name: "拼对", desc: "把碎片重新放回可能的位置，让残缺重新形成关系。", icon: Puzzle },
+  { name: "加固", desc: "让脆弱材料稳定下来，减少氧化、开裂、变形等风险。", icon: ShieldCheck },
+  { name: "展陈", desc: "以适宜的光照、温湿度和空间讲述它的故事。", icon: Eye },
+  { name: "数字化", desc: "扫描、建模、传播，让更多人看见三星堆。", icon: ScanLine },
+];
+
+const people = [
+  {
+    name: "燕道诚、燕青保父子",
+    role: "最初发现线索的人",
+    time: "1929",
+    contribution: "在广汉月亮湾一带开掘水塘时发现大量玉石器，使三星堆逐渐进入公众与学术视野。",
+    spirit: "很多伟大发现，都从一次普通的劳动开始。",
+  },
+  {
+    name: "葛维汉",
+    role: "首次科学发掘组织者",
+    time: "1934",
+    contribution: "华西协合大学古物博物馆馆长葛维汉组织考古队，对三星堆进行首次科学发掘，并提出“广汉文化”概念。",
+    spirit: "把偶然发现带入科学记录，是三星堆百年研究的重要起点。",
+  },
+  {
+    name: "陈德安",
+    role: "1986年祭祀坑主要发掘者",
+    time: "1986",
+    contribution: "首任三星堆遗址工作站站长，长期从事三星堆考古，是1、2号祭祀坑的重要发掘者之一。",
+    spirit: "面对未知，他把震惊变成记录，把惊喜变成证据。",
+  },
+  {
+    name: "赵殿增",
+    role: "三星堆研究与传播的重要学者",
+    time: "长期研究",
+    contribution: "长期参与三星堆考古研究、阐释与公众传播，让更多人理解三星堆的学术价值和文明意义。",
+    spirit: "考古不只在现场，也在一次次解释、讲述和追问之中。",
+  },
+  {
+    name: "雷雨",
+    role: "三星堆考古队领队、遗址工作站站长",
+    time: "2005以后",
+    contribution: "接续前辈工作，推动三星堆遗址的保护、研究、发掘和多学科合作。",
+    spirit: "真正的接力，是把前人的问题继续问下去。",
+  },
+  {
+    name: "许丹阳与青年考古人",
+    role: "新一代现场力量",
+    time: "2020—2022",
+    contribution: "在新一轮发掘中，青年考古工作者参与现场清理、提取、记录与保护，让科技考古和细致劳动同步发生。",
+    spirit: "文明的回声，需要年轻的耳朵继续倾听。",
+  },
+];
+
+const workday = [
+  ["08:00", "进入考古大棚，检查环境与设备。"],
+  ["09:30", "清理遗迹层，记录土色、方位和层位。"],
+  ["11:00", "拍照、测绘、编号，确认每一处细节。"],
+  ["14:00", "提取样本，交给实验室做材料与残留物分析。"],
+  ["16:30", "整理资料，核对图纸、记录和影像。"],
+  ["20:00", "讨论发掘进展，制定下一步方案。"],
+];
+
+const civilizationPieces = [
+  { title: "多元一体", text: "三星堆显示中华文明不是单线展开，而是在不同区域的交流与互鉴中形成丰富面貌。" },
+  { title: "科技考古", text: "实验室、显微分析、数字建模与现场发掘同步推进，让证据更精确。" },
+  { title: "文物保护", text: "出土不是终点。清理、检测、加固、保存，决定文物能否走向更久远的未来。" },
+  { title: "公众传播", text: "博物馆、数字展陈与H5互动，让更多人理解考古人的工作，而不只是观看“国宝”。" },
+];
+
+const quiz = [
+  {
+    q: "考古工作者为什么要反复拍照、测绘、编号？",
+    options: ["为了让现场更好看", "为了保存文物所处位置和关系", "为了加快挖掘速度"],
+    answer: 1,
+    explain: "文物的位置、层位和组合关系，本身就是重要历史信息。",
+  },
+  {
+    q: "文物出土之后，下一步最重要的工作之一是什么？",
+    options: ["立刻展出", "随意清洗", "保护、检测与修复"],
+    answer: 2,
+    explain: "出土后的环境变化可能带来损伤，因此文保工作非常关键。",
+  },
+  {
+    q: "三星堆带给中华文明研究的重要启发是？",
+    options: ["文明只有一种形态", "区域文化之间可能有交流互鉴", "神秘比证据更重要"],
+    answer: 1,
+    explain: "三星堆既有独特面貌，也与其他区域文化存在联系。",
+  },
+];
+
+const vows = [
+  "愿每一次凝望，都不止于惊叹，而能看见背后的劳动。",
+  "愿每一件文物，都被温柔对待，也被认真理解。",
+  "愿我们把今天的答案，交给未来继续追问。",
+  "愿文明不只陈列在展柜里，也生长在每个人的记忆中。",
+];
+
+function cx(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
+function Card({ children, className = "" }) {
+  return <div className={cx("rounded-[2rem] border border-white/10 bg-white/5 p-5 backdrop-blur", className)}>{children}</div>;
+}
+
+function MaskGraphic({ compact = false, glow = true }) {
+  return (
+    <motion.svg
+      viewBox="0 0 420 260"
+      className={cx("mx-auto w-full drop-shadow-[0_0_34px_rgba(230,180,88,0.22)]", compact ? "max-w-[280px]" : "max-w-[350px]")}
+      initial={{ opacity: 0, scale: 0.94 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8 }}
+    >
+      <defs>
+        <linearGradient id="bronze" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#79a38d" />
+          <stop offset="42%" stopColor="#21483e" />
+          <stop offset="100%" stopColor="#b88a3f" />
+        </linearGradient>
+        <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#f8d37a" stopOpacity="1" />
+          <stop offset="100%" stopColor="#f8d37a" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      {glow && (
+        <>
+          <motion.ellipse cx="130" cy="125" rx="70" ry="44" fill="url(#eyeGlow)" animate={{ opacity: [0.2, 0.8, 0.2] }} transition={{ repeat: Infinity, duration: 3.2 }} />
+          <motion.ellipse cx="290" cy="125" rx="70" ry="44" fill="url(#eyeGlow)" animate={{ opacity: [0.8, 0.2, 0.8] }} transition={{ repeat: Infinity, duration: 3.2 }} />
+        </>
+      )}
+      <path d="M45 122 C62 42 154 22 210 55 C266 22 358 42 375 122 C353 207 263 232 210 198 C157 232 67 207 45 122Z" fill="url(#bronze)" opacity="0.96" />
+      <path d="M210 62 L238 180 L210 205 L182 180 Z" fill="#16332d" opacity="0.78" />
+      <path d="M84 118 C107 82 153 82 181 118 C151 139 112 139 84 118Z" fill="#061915" />
+      <path d="M239 118 C267 82 313 82 336 118 C308 139 269 139 239 118Z" fill="#061915" />
+      <circle cx="132" cy="117" r="24" fill="#d7a94c" opacity="0.9" />
+      <circle cx="288" cy="117" r="24" fill="#d7a94c" opacity="0.9" />
+      <path d="M66 85 L26 42 L62 136 Z" fill="#3d695c" />
+      <path d="M354 85 L394 42 L358 136 Z" fill="#3d695c" />
+      <path d="M110 184 C155 210 265 210 310 184" stroke="#d6a751" strokeWidth="8" fill="none" strokeLinecap="round" opacity="0.85" />
+      <path d="M85 72 C118 38 174 36 210 63 C246 36 302 38 335 72" stroke="#e2c06d" strokeWidth="5" fill="none" opacity="0.45" />
+    </motion.svg>
+  );
+}
+
+function TreeGraphic() {
+  return (
+    <svg viewBox="0 0 230 360" className="mx-auto h-[225px] w-[165px] opacity-95">
+      <defs>
+        <linearGradient id="treeGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#8bb39a" />
+          <stop offset="100%" stopColor="#c79b4b" />
+        </linearGradient>
+      </defs>
+      <path d="M113 334 C112 260 116 184 112 70" stroke="url(#treeGradient)" strokeWidth="16" strokeLinecap="round" fill="none" />
+      {[74, 132, 190].map((y, idx) => (
+        <g key={y}>
+          <path d={`M114 ${y} C80 ${y - 20} 52 ${y - 19} 30 ${y - 39}`} stroke="url(#treeGradient)" strokeWidth="9" fill="none" strokeLinecap="round" />
+          <path d={`M116 ${y + 6} C150 ${y - 16} 180 ${y - 16} 202 ${y - 34}`} stroke="url(#treeGradient)" strokeWidth="9" fill="none" strokeLinecap="round" />
+          <circle cx="31" cy={y - 41} r="9" fill="#d9b65f" />
+          <circle cx="202" cy={y - 36} r="9" fill="#d9b65f" />
+          <path d={`M${idx % 2 ? 49 : 185} ${y - 52} q12 -16 24 0 q-12 10 -24 0Z`} fill="#193d35" stroke="#d9b65f" strokeWidth="3" />
+        </g>
+      ))}
+      <path d="M104 314 C70 296 66 262 96 245 C132 226 158 252 136 286" stroke="#c79b4b" strokeWidth="7" fill="none" strokeLinecap="round" />
+      <circle cx="114" cy="45" r="21" fill="#d5aa52" opacity="0.92" />
+    </svg>
+  );
+}
+
+function PhoneShell({ index, setIndex, children, title, eyebrow }) {
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[#06110f] text-stone-100">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(203,154,72,0.18),transparent_28%),radial-gradient(circle_at_82%_18%,rgba(75,128,113,0.16),transparent_26%),linear-gradient(180deg,#07100f_0%,#0d1715_48%,#050807_100%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.055] [background-image:linear-gradient(rgba(255,255,255,.28)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.28)_1px,transparent_1px)] [background-size:36px_36px]" />
+      <motion.div className="pointer-events-none absolute -left-20 top-20 h-64 w-64 rounded-full bg-[#d4ae62]/10 blur-3xl" animate={{ opacity: [0.25, 0.6, 0.25], scale: [1, 1.12, 1] }} transition={{ duration: 6, repeat: Infinity }} />
+      <motion.div className="pointer-events-none absolute -right-20 bottom-20 h-64 w-64 rounded-full bg-[#477c6a]/15 blur-3xl" animate={{ opacity: [0.45, 0.22, 0.45], scale: [1.05, 1, 1.05] }} transition={{ duration: 7, repeat: Infinity }} />
+
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-3 py-5 sm:px-5">
+        <div className="relative flex h-[92vh] w-full max-w-[410px] flex-col overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.075),rgba(255,255,255,0.035))] shadow-[0_22px_90px_rgba(0,0,0,.48)] backdrop-blur-xl">
+          <div className="flex items-center justify-between px-5 pb-3 pt-4 text-xs text-stone-300/85">
+            <div className="rounded-full border border-stone-300/15 bg-white/5 px-3 py-1 backdrop-blur">三星堆发现100周年 H5</div>
+            <div className="tabular-nums">{String(index + 1).padStart(2, "0")} / {String(pages.length).padStart(2, "0")}</div>
+          </div>
+
+          {(eyebrow || title) && (
+            <motion.div className="px-5 pt-1" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
+              {eyebrow && <div className="mb-2 text-xs tracking-[0.35em] text-[#d4ae62]">{eyebrow}</div>}
+              {title && <h2 className="text-[27px] font-semibold leading-tight text-stone-50">{title}</h2>}
+            </motion.div>
+          )}
+
+          <main data-scroll-area className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-4">{children}</main>
+
+          <div className="border-t border-white/10 bg-[linear-gradient(180deg,rgba(8,10,10,0.45),rgba(8,10,10,0.94))] px-4 py-3 backdrop-blur-xl">
+            <div className="flex items-center justify-between gap-3">
+              <button onClick={() => setIndex(Math.max(0, index - 1))} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-stone-200 transition active:scale-95 disabled:opacity-25" disabled={index === 0} aria-label="上一页">
+                <ChevronUp size={20} />
+              </button>
+              <div className="flex flex-1 justify-center gap-1.5">
+                {pages.map((p, i) => (
+                  <button key={p} onClick={() => setIndex(i)} className={cx("h-1.5 rounded-full transition-all", i === index ? "w-8 bg-[#d4ae62]" : "w-1.5 bg-white/25")} aria-label={p} />
+                ))}
+              </div>
+              <button onClick={() => setIndex(Math.min(pages.length - 1, index + 1))} className="flex h-11 w-11 items-center justify-center rounded-full border border-[#d4ae62]/30 bg-[#d4ae62]/15 text-[#f4d38a] transition active:scale-95 disabled:opacity-25" disabled={index === pages.length - 1} aria-label="下一页">
+                <ChevronDown size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Cover({ setIndex }) {
+  return (
+    <div className="flex min-h-full flex-col justify-center text-center">
+      <div className="mb-3 flex justify-center"><div className="rounded-full border border-[#d4ae62]/30 bg-[#d4ae62]/10 px-3 py-1 text-xs tracking-[0.25em] text-[#f2d58c]">1929—2029</div></div>
+      <MaskGraphic />
+      <motion.h1 className="mt-4 text-[40px] font-black leading-tight tracking-tight text-stone-50" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        一铲一刷<br />一眼千年
+      </motion.h1>
+      <p className="mx-auto mt-4 max-w-sm text-[15px] leading-7 text-stone-300">三星堆发现100周年互动纪念H5<br />把目光交给文物，也交给让文物重新被看见的人。</p>
+      <Card className="mx-auto mt-5 max-w-sm text-left">
+        <div className="mb-2 flex items-center gap-2 text-[#d4ae62]"><Sparkles size={16} />作品聚焦</div>
+        <p className="text-sm leading-7 text-stone-300">考古工作者的辛勤努力<br />三星堆文物的前世今生<br />百年接力中的文明回声</p>
+      </Card>
+      <button onClick={() => setIndex(1)} className="mx-auto mt-6 rounded-full bg-[#d4ae62] px-8 py-3 font-semibold text-[#161007] shadow-[0_0_35px_rgba(212,174,98,.35)] transition active:scale-95">开始探寻</button>
+      <p className="mt-3 text-xs text-stone-400">建议竖屏观看 · 点击与滑动探索</p>
+    </div>
+  );
+}
+
+function FirstLight() {
+  const [clean, setClean] = useState(28);
+  const dustOpacity = 1 - clean / 100;
+  return (
+    <div>
+      <div className="relative mx-auto h-[300px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#2a1d13] shadow-2xl">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(229,180,82,.25),transparent_36%),linear-gradient(180deg,#382518,#130d09)]" />
+        <motion.div className="absolute left-1/2 top-1/2 h-36 w-44 -translate-x-1/2 -translate-y-1/2 rounded-[42%] border-[9px] border-[#c6a25f] bg-[#305848]/80 shadow-[inset_0_0_24px_rgba(0,0,0,.5),0_0_35px_rgba(214,166,82,.32)]" animate={{ opacity: 0.3 + clean / 120, scale: 0.95 + clean / 500 }} />
+        <div className="absolute inset-0 transition-all duration-300" style={{ opacity: dustOpacity, background: "radial-gradient(circle at 30% 30%, #654531 0 3px, transparent 4px), radial-gradient(circle at 70% 60%, #7b563b 0 4px, transparent 5px), linear-gradient(135deg,#6c4b35,#2b1b12)", backgroundSize: "24px 24px, 32px 32px, cover" }} />
+        <div className="absolute left-5 top-5 rounded-full border border-[#d4ae62]/25 bg-black/25 px-3 py-1 text-xs text-[#f4d38a] backdrop-blur">互动：拖动滑块刷去泥土</div>
+        <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/10 bg-black/35 p-4 backdrop-blur">
+          <div className="mb-2 flex items-center justify-between text-sm text-stone-200"><span>文物显露度</span><span>{clean}%</span></div>
+          <input type="range" min="0" max="100" value={clean} onChange={(e) => setClean(Number(e.target.value))} className="w-full accent-[#d4ae62]" />
+        </div>
+      </div>
+      <Card className="mt-5"><p className="text-[16px] leading-8 text-stone-200">1929年，广汉月亮湾一带，一批玉石器从泥土中显露。没人知道，这一次偶然发现，将开启一场持续百年的文明追问。</p></Card>
+    </div>
+  );
+}
+
+function TimelinePage() {
+  const [active, setActive] = useState(2);
+  const item = timeline[active];
+  return (
+    <div>
+      <div className="space-y-3">
+        {timeline.map((t, i) => (
+          <button key={t.year} onClick={() => setActive(i)} className={cx("flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition active:scale-[0.99]", active === i ? "border-[#d4ae62]/60 bg-[#d4ae62]/15 shadow-[0_8px_24px_rgba(212,174,98,.12)]" : "border-white/10 bg-white/5")}>
+            <div className={cx("flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-sm font-bold", active === i ? "bg-[#d4ae62] text-[#111]" : "bg-white/10 text-stone-300")}>{t.year.split("—")[0]}</div>
+            <div><div className="font-semibold text-stone-50">{t.title}</div><div className="mt-1 text-sm leading-6 text-stone-300">{t.text}</div></div>
+          </button>
+        ))}
+      </div>
+      <motion.div key={item.year} className="mt-5 rounded-[2rem] border border-[#d4ae62]/25 bg-black/25 p-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="text-4xl font-black text-[#d4ae62]">{item.year}</div>
+        <p className="mt-2 leading-7 text-stone-200">{item.text}</p>
+      </motion.div>
+    </div>
+  );
+}
+
+function ToolsPage() {
+  const [active, setActive] = useState(0);
+  const Icon = tools[active].icon;
+  return (
+    <div>
+      <Card className="mb-5"><p className="text-[16px] leading-8 text-stone-200">考古不是“挖宝”。它是一寸一寸地记录，一层一层地判断，把泥土里的信息尽可能完整地留下。</p></Card>
+      <div className="grid grid-cols-3 gap-3">
+        {tools.map((tool, i) => {
+          const TIcon = tool.icon;
+          return <button key={tool.name} onClick={() => setActive(i)} className={cx("min-h-[96px] rounded-3xl border p-4 text-center transition active:scale-[0.98]", active === i ? "border-[#d4ae62]/70 bg-[#d4ae62]/15" : "border-white/10 bg-white/5")}><TIcon className="mx-auto mb-2" size={24} /><div className="text-sm font-semibold">{tool.name}</div></button>;
+        })}
+      </div>
+      <motion.div key={tools[active].name} className="mt-5 rounded-[2rem] border border-white/10 bg-white/8 p-6" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}>
+        <Icon className="mb-4 text-[#d4ae62]" size={34} />
+        <h3 className="text-2xl font-semibold">{tools[active].name}</h3>
+        <p className="mt-3 text-[16px] leading-8 text-stone-200">{tools[active].text}</p>
+        <div className="mt-4 rounded-2xl border border-[#d4ae62]/25 bg-[#d4ae62]/10 p-4 text-sm leading-7 text-[#f4d38a]">{tools[active].quote}</div>
+      </motion.div>
+    </div>
+  );
+}
+
+function RelicsGalleryPage() {
+  const [active, setActive] = useState(0);
+  const [collected, setCollected] = useState([]);
+  const relic = relics[active];
+  const Icon = relic.icon;
+  const collect = () => setCollected((items) => (items.includes(relic.name) ? items : [...items, relic.name]));
+
+  return (
+    <div>
+      <Card className="mb-4">
+        <div className="flex items-center justify-between gap-3">
+          <div><div className="text-xs tracking-[0.25em] text-[#d4ae62]">文物图鉴</div><div className="mt-2 text-sm text-stone-300">点击文物，点亮你的三星堆图鉴。</div></div>
+          <div className="rounded-full border border-[#d4ae62]/30 bg-[#d4ae62]/10 px-3 py-1 text-sm text-[#f4d38a]">{collected.length}/{relics.length}</div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-3 gap-2">
+        {relics.map((r, i) => {
+          const RIcon = r.icon;
+          const isCollected = collected.includes(r.name);
+          return (
+            <button key={r.name} onClick={() => setActive(i)} className={cx("relative min-h-[86px] rounded-2xl border p-3 text-center transition active:scale-[0.98]", active === i ? "border-[#d4ae62]/70 bg-[#d4ae62]/15" : "border-white/10 bg-white/5")}>
+              {isCollected && <CheckCircle2 className="absolute right-2 top-2 text-[#d4ae62]" size={14} />}
+              <RIcon className="mx-auto mb-2 text-[#d4ae62]" size={24} />
+              <div className="text-xs leading-5">{r.name}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      <motion.div key={relic.name} className="mt-5 rounded-[2rem] border border-white/10 bg-black/25 p-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="flex items-start gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#d4ae62]/15 text-[#d4ae62]"><Icon size={30} /></div>
+          <div><div className="text-xs tracking-[0.25em] text-[#d4ae62]">{relic.tag} · {relic.color}</div><h3 className="mt-1 text-2xl font-semibold">{relic.name}</h3></div>
+        </div>
+        <p className="mt-4 text-[16px] leading-8 text-stone-200">{relic.value}</p>
+        <button onClick={collect} className="mt-4 w-full rounded-2xl border border-[#d4ae62]/40 bg-[#d4ae62]/15 px-4 py-3 text-sm font-semibold text-[#f4d38a] transition active:scale-[0.98]">{collected.includes(relic.name) ? "已点亮" : "点亮这件文物"}</button>
+      </motion.div>
+    </div>
+  );
+}
+
+function ArtifactsPage() {
+  const [active, setActive] = useState(0);
+  const [mode, setMode] = useState("pre");
+  const artifact = relics[active];
+  return (
+    <div>
+      <div className="mb-4 flex justify-center rounded-[2rem] border border-white/10 bg-black/20 py-3">{artifact.name === "青铜神树" ? <TreeGraphic /> : <MaskGraphic compact glow={false} />}</div>
+      <div className="grid grid-cols-2 gap-3">
+        {relics.slice(0, 6).map((a, i) => (
+          <button key={a.name} onClick={() => setActive(i)} className={cx("rounded-3xl border p-4 text-left transition active:scale-[0.98]", active === i ? "border-[#d4ae62]/70 bg-[#d4ae62]/15" : "border-white/10 bg-white/5")}>
+            <div className="text-xs tracking-[0.25em] text-[#d4ae62]">{a.tag}</div><div className="mt-2 font-semibold">{a.name}</div>
+          </button>
+        ))}
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/5 p-1">
+        <button onClick={() => setMode("pre")} className={cx("rounded-xl px-4 py-2 text-sm transition", mode === "pre" ? "bg-[#d4ae62] font-semibold text-[#15110a]" : "text-stone-300")}>前世</button>
+        <button onClick={() => setMode("now")} className={cx("rounded-xl px-4 py-2 text-sm transition", mode === "now" ? "bg-[#d4ae62] font-semibold text-[#15110a]" : "text-stone-300")}>今生</button>
+      </div>
+      <motion.div key={`${active}-${mode}`} className="mt-4 rounded-[2rem] border border-white/10 bg-black/25 p-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <h3 className="text-2xl font-semibold text-stone-50">{artifact.name}</h3>
+        <p className="mt-3 text-[16px] leading-8 text-stone-200">{mode === "pre" ? artifact.pre : artifact.now}</p>
+      </motion.div>
+    </div>
+  );
+}
+
+function RepairPage() {
+  const [step, setStep] = useState(0);
+  const progress = Math.round(((step + 1) / repairSteps.length) * 100);
+  const CurrentIcon = repairSteps[step].icon;
+  return (
+    <div>
+      <div className="relative mx-auto h-[245px] overflow-hidden rounded-[2rem] border border-white/10 bg-black/25">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(212,174,98,.23),transparent_37%)]" />
+        <motion.div className="absolute left-1/2 top-1/2 h-28 w-36 -translate-x-1/2 -translate-y-1/2 rounded-[40%] border-8 border-[#d4ae62] bg-[#345c50]/80" animate={{ rotate: [-2, 2, -2], opacity: 0.4 + progress / 160 }} transition={{ repeat: Infinity, duration: 5 }} style={{ filter: `blur(${Math.max(0, 5 - step * 0.6)}px)` }} />
+        <ScanLine className="absolute left-8 top-8 text-[#d4ae62]" size={34} />
+        <div className="absolute bottom-5 left-5 right-5"><div className="mb-2 h-2 overflow-hidden rounded-full bg-white/10"><motion.div className="h-full bg-[#d4ae62]" animate={{ width: `${progress}%` }} /></div><div className="flex justify-between text-xs text-stone-300"><span>修复进度</span><span>{progress}%</span></div></div>
+      </div>
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        {repairSteps.map((s, i) => <button key={s.name} onClick={() => setStep(i)} className={cx("rounded-2xl border px-3 py-3 text-sm transition active:scale-[0.98]", step === i ? "border-[#d4ae62] bg-[#d4ae62]/20 text-[#f4d38a]" : "border-white/10 bg-white/5 text-stone-300")}>{s.name}</button>)}
+      </div>
+      <motion.div key={step} className="mt-5 rounded-[2rem] border border-white/10 bg-white/5 p-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <CurrentIcon className="mb-3 text-[#d4ae62]" size={30} />
+        <h3 className="text-2xl font-semibold">{repairSteps[step].name}</h3>
+        <p className="mt-2 text-[16px] leading-8 text-stone-200">{repairSteps[step].desc}</p>
+      </motion.div>
+    </div>
+  );
+}
+
+function TwoHandsPage() {
+  const [value, setValue] = useState(50);
+  return (
+    <div>
+      <div className="relative h-[330px] overflow-hidden rounded-[2rem] border border-white/10 bg-black/30">
+        <div className="absolute inset-y-0 left-0 flex items-center justify-center bg-[linear-gradient(135deg,#452b18,#0d1110)] px-6" style={{ width: `${value}%` }}><div className="text-center"><Hand className="mx-auto mb-4 text-[#d4ae62]" size={50} /><div className="text-xl font-semibold">三千年前</div><p className="mt-3 text-sm leading-6 text-stone-300">有人把信仰、权力与想象铸进青铜。</p></div></div>
+        <div className="absolute inset-y-0 right-0 flex items-center justify-center bg-[linear-gradient(135deg,#0d2220,#101010)] px-6" style={{ width: `${100 - value}%` }}><div className="text-center"><Brush className="mx-auto mb-4 text-[#d4ae62]" size={50} /><div className="text-xl font-semibold">三千年后</div><p className="mt-3 text-sm leading-6 text-stone-300">有人俯身清理、记录、修复，让它重回今天。</p></div></div>
+        <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/10 bg-black/42 p-4 backdrop-blur"><input className="w-full accent-[#d4ae62]" type="range" min="24" max="76" value={value} onChange={(e) => setValue(Number(e.target.value))} /><div className="mt-2 flex justify-between text-xs text-stone-300"><span>前世</span><span>今生</span></div></div>
+      </div>
+      <Card className="mt-5"><p className="text-[18px] font-semibold leading-9 text-stone-50">一件文物连接的，不只是古代与现代，也是两代“手艺人”之间无声的相遇。</p></Card>
+    </div>
+  );
+}
+
+function PeoplePage() {
+  const [active, setActive] = useState(2);
+  const [lit, setLit] = useState([]);
+  const person = people[active];
+  const light = () => setLit((arr) => (arr.includes(person.name) ? arr : [...arr, person.name]));
+  return (
+    <div>
+      <Card className="mb-4"><div className="flex items-center justify-between"><div><div className="text-xs tracking-[0.25em] text-[#d4ae62]">百年接力人</div><p className="mt-2 text-sm leading-6 text-stone-300">点击人物卡片，查看他们在三星堆发现、发掘、研究和传播中的贡献。</p></div><div className="rounded-full border border-[#d4ae62]/30 bg-[#d4ae62]/10 px-3 py-1 text-sm text-[#f4d38a]">{lit.length}/{people.length}</div></div></Card>
+      <div className="space-y-3">
+        {people.map((p, i) => (
+          <button key={p.name} onClick={() => setActive(i)} className={cx("flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition active:scale-[0.99]", active === i ? "border-[#d4ae62]/70 bg-[#d4ae62]/15" : "border-white/10 bg-white/5")}>
+            <div className={cx("flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl", active === i ? "bg-[#d4ae62] text-[#111]" : "bg-white/10 text-[#d4ae62]")}><UserRound size={22} /></div>
+            <div className="min-w-0"><div className="font-semibold text-stone-50">{p.name}</div><div className="mt-1 text-xs text-stone-400">{p.time} · {p.role}</div></div>
+          </button>
+        ))}
+      </div>
+      <motion.div key={person.name} className="mt-5 rounded-[2rem] border border-white/10 bg-black/25 p-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="text-xs tracking-[0.25em] text-[#d4ae62]">{person.time}</div>
+        <h3 className="mt-2 text-2xl font-semibold">{person.name}</h3>
+        <p className="mt-3 text-[16px] leading-8 text-stone-200">{person.contribution}</p>
+        <div className="mt-4 rounded-2xl border border-[#d4ae62]/25 bg-[#d4ae62]/10 p-4 text-sm leading-7 text-[#f4d38a]">{person.spirit}</div>
+        <button onClick={light} className="mt-4 w-full rounded-2xl border border-[#d4ae62]/40 bg-[#d4ae62]/15 px-4 py-3 text-sm font-semibold text-[#f4d38a] transition active:scale-[0.98]">{lit.includes(person.name) ? "已点亮接力" : "点亮这位接力人"}</button>
+      </motion.div>
+    </div>
+  );
+}
+
+function WorkdayPage() {
+  return (
+    <div>
+      <div className="space-y-3">
+        {workday.map(([time, text], i) => (
+          <motion.div key={time} className="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-4" initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+            <div className="flex w-16 shrink-0 items-center gap-1 font-bold text-[#d4ae62]"><Clock3 size={16} />{time}</div><div className="leading-6 text-stone-200">{text}</div>
+          </motion.div>
+        ))}
+      </div>
+      <Card className="mt-5"><p className="text-[16px] leading-8 text-stone-200">大众看见的是“上新”的文物。他们经历的是重复、谨慎、等待和判断。所谓惊艳世界的发现，往往来自最平静、最细碎的坚持。</p></Card>
+    </div>
+  );
+}
+
+function CivilizationPuzzlePage() {
+  const [active, setActive] = useState([]);
+  const toggle = (title) => setActive((arr) => (arr.includes(title) ? arr.filter((x) => x !== title) : [...arr, title]));
+  const done = active.length === civilizationPieces.length;
+  return (
+    <div>
+      <Card className="mb-4"><div className="flex items-center gap-3"><Puzzle className="text-[#d4ae62]" /><div><div className="font-semibold">拼出三星堆的意义</div><p className="mt-1 text-sm text-stone-300">点击四块拼图，理解三星堆不只是“神秘”。</p></div></div></Card>
+      <div className="grid grid-cols-2 gap-3">
+        {civilizationPieces.map((piece) => (
+          <button key={piece.title} onClick={() => toggle(piece.title)} className={cx("min-h-[138px] rounded-[1.7rem] border p-4 text-left transition active:scale-[0.98]", active.includes(piece.title) ? "border-[#d4ae62]/70 bg-[#d4ae62]/15" : "border-white/10 bg-white/5")}>
+            <div className="mb-3 flex items-center justify-between"><Star className="text-[#d4ae62]" size={19} />{active.includes(piece.title) && <CheckCircle2 className="text-[#d4ae62]" size={18} />}</div>
+            <div className="font-semibold">{piece.title}</div>
+            <p className="mt-2 text-xs leading-6 text-stone-300">{piece.text}</p>
+          </button>
+        ))}
+      </div>
+      <motion.div key={done ? "done" : "todo"} className="mt-5 rounded-[2rem] border border-[#d4ae62]/25 bg-black/25 p-5" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="text-xs tracking-[0.25em] text-[#d4ae62]">升华主题</div>
+        <p className="mt-3 text-[17px] font-semibold leading-9 text-stone-50">{done ? "三星堆的意义，不在于它有多神秘，而在于它让我们看见：中华文明由许多区域、许多人、许多代人的接力共同组成。" : "继续点亮拼图：从文物到文明，从发现到保护，从展柜到每个人的记忆。"}</p>
+      </motion.div>
+    </div>
+  );
+}
+
+function QuizPage() {
+  const [answers, setAnswers] = useState({});
+  const score = quiz.reduce((sum, q, i) => sum + (answers[i] === q.answer ? 1 : 0), 0);
+  return (
+    <div>
+      <Card className="mb-4"><div className="flex items-center justify-between"><div><div className="text-xs tracking-[0.25em] text-[#d4ae62]">互动问答</div><p className="mt-2 text-sm text-stone-300">选择答案，成为小小考古观察员。</p></div><div className="rounded-full bg-[#d4ae62] px-3 py-1 text-sm font-bold text-[#111]">{score}/{quiz.length}</div></div></Card>
+      <div className="space-y-4">
+        {quiz.map((q, i) => (
+          <Card key={q.q}>
+            <div className="mb-3 flex items-start gap-2"><HelpCircle className="mt-1 shrink-0 text-[#d4ae62]" size={18} /><h3 className="font-semibold leading-7">{q.q}</h3></div>
+            <div className="space-y-2">
+              {q.options.map((op, idx) => {
+                const chosen = answers[i] === idx;
+                const answered = answers[i] !== undefined;
+                const correct = q.answer === idx;
+                return <button key={op} onClick={() => setAnswers({ ...answers, [i]: idx })} className={cx("w-full rounded-2xl border px-4 py-3 text-left text-sm transition active:scale-[0.99]", chosen && correct ? "border-emerald-300/50 bg-emerald-300/15 text-emerald-100" : chosen && !correct ? "border-red-300/50 bg-red-300/15 text-red-100" : answered && correct ? "border-[#d4ae62]/50 bg-[#d4ae62]/10 text-[#f4d38a]" : "border-white/10 bg-white/5 text-stone-300")}>{op}</button>;
+              })}
+            </div>
+            {answers[i] !== undefined && <p className="mt-3 text-sm leading-6 text-stone-300">{q.explain}</p>}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VowPage() {
+  const [active, setActive] = useState(0);
+  return (
+    <div>
+      <Card className="mb-4 text-center"><ShieldCheck className="mx-auto mb-3 text-[#d4ae62]" size={42} /><h3 className="text-2xl font-semibold">写给未来的守护宣言</h3><p className="mt-3 text-sm leading-7 text-stone-300">选择一句你想带走的话，让H5从“观看”变成一次参与。</p></Card>
+      <div className="space-y-3">
+        {vows.map((v, i) => <button key={v} onClick={() => setActive(i)} className={cx("w-full rounded-3xl border p-4 text-left leading-7 transition active:scale-[0.99]", active === i ? "border-[#d4ae62]/70 bg-[#d4ae62]/15 text-[#f4d38a]" : "border-white/10 bg-white/5 text-stone-300")}>{v}</button>)}
+      </div>
+      <motion.div key={active} className="mt-5 rounded-[2rem] border border-[#d4ae62]/25 bg-black/25 p-5 text-center" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="text-xs tracking-[0.25em] text-[#d4ae62]">我的三星堆宣言</div>
+        <p className="mt-4 text-[19px] font-semibold leading-9 text-stone-50">{vows[active]}</p>
+      </motion.div>
+    </div>
+  );
+}
+
+function ImportancePage() {
+  const points = ["古蜀文明", "区域交流", "青铜文化", "祭祀空间", "多元一体", "文明探源"];
+  const [active, setActive] = useState(0);
+  const positions = [[16, 20], [63, 17], [72, 47], [52, 72], [18, 65], [36, 41]];
+  return (
+    <div>
+      <div className="relative mx-auto h-[300px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#0a1513]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_55%_45%,rgba(212,174,98,.22),transparent_32%)]" />
+        <MapPinned className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-[#d4ae62]" size={62} />
+        <svg className="absolute inset-0 h-full w-full opacity-50" viewBox="0 0 320 300"><path d="M160 150 C78 68 70 232 170 214 C260 198 250 78 130 118" stroke="#d4ae62" strokeWidth="2" fill="none" strokeDasharray="6 8" /></svg>
+        {points.map((p, i) => <button key={p} onClick={() => setActive(i)} className={cx("absolute z-20 rounded-full border px-3 py-1 text-xs backdrop-blur transition active:scale-95", active === i ? "border-[#d4ae62] bg-[#d4ae62]/25 text-[#f6dc9a]" : "border-white/10 bg-white/10 text-stone-300")} style={{ left: `${positions[i][0]}%`, top: `${positions[i][1]}%` }}>{p}</button>)}
+      </div>
+      <motion.div key={active} className="mt-5 rounded-[2rem] border border-white/10 bg-white/5 p-5" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="text-sm tracking-[0.25em] text-[#d4ae62]">关键词</div><h3 className="mt-2 text-2xl font-semibold">{points[active]}</h3><p className="mt-3 text-[16px] leading-8 text-stone-200">三星堆让人们重新认识长江上游的古蜀文明，也让我们看到中华文明不是单线展开，而是在多区域互动中形成丰富面貌。</p>
+      </motion.div>
+    </div>
+  );
+}
+
+function QuestionsPage() {
+  const [answered, setAnswered] = useState([]);
+  const qs = ["他们为何铸造如此巨大的面具？", "神树象征着什么？", "这些器物为何被集中埋藏？", "古蜀人的精神世界是什么样的？", "三星堆与周边文明如何交流？"];
+  return (
+    <div className="text-center">
+      <div className="rounded-[2rem] border border-white/10 bg-black/20 py-3"><MaskGraphic compact /></div>
+      <p className="mx-auto my-5 max-w-sm text-[16px] leading-8 text-stone-200">百年考古，并没有结束神秘。它只是让我们学会，用更科学的方式接近未知。</p>
+      <div className="space-y-3 text-left">
+        {qs.map((q) => <button key={q} onClick={() => setAnswered((a) => (a.includes(q) ? a : [...a, q]))} className={cx("flex w-full items-center gap-3 rounded-3xl border p-4 transition active:scale-[0.99]", answered.includes(q) ? "border-[#d4ae62]/70 bg-[#d4ae62]/15" : "border-white/10 bg-white/5")}><Eye size={18} className="shrink-0 text-[#d4ae62]" /><span className="leading-6">{q}</span></button>)}
+      </div>
+    </div>
+  );
+}
+
+function Ending({ setIndex }) {
+  return (
+    <div className="flex min-h-full flex-col justify-center text-center">
+      <motion.div className="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full border border-[#d4ae62]/40 bg-[#d4ae62]/15 shadow-[0_0_60px_rgba(212,174,98,.25)]" animate={{ scale: [1, 1.08, 1] }} transition={{ repeat: Infinity, duration: 3 }}><Heart className="text-[#f2d58c]" size={44} /></motion.div>
+      <h2 className="text-[34px] font-black leading-tight">文明苏醒时，<br />有人一直俯身。</h2>
+      <p className="mx-auto mt-5 max-w-sm text-[16px] leading-8 text-stone-200">一百年，三星堆从泥土走向世界。一百年，考古人从未停止追问。他们不是唤醒了文物，而是让我们重新听见文明的回声。</p>
+      <Card className="mt-6 text-left"><div className="mb-2 text-sm tracking-[0.25em] text-[#d4ae62]">结尾升华</div><p className="leading-7 text-stone-300">真正被发现的，不只有青铜、黄金与玉器，还有一代代人面对未知时的谨慎、耐心和敬畏。三星堆属于过去，也属于未来；属于古蜀，也属于每一个愿意守护文明记忆的人。</p></Card>
+      <button onClick={() => setIndex(0)} className="mx-auto mt-6 rounded-full border border-[#d4ae62]/50 px-7 py-3 text-[#f4d38a] transition active:scale-95">再看一遍</button>
+    </div>
+  );
+}
+
+function CurrentPage({ index, setIndex }) {
+  const common = { index, setIndex };
+  const pageList = [
+    <PhoneShell {...common}><Cover setIndex={setIndex} /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第一章" title="1929，第一道光"><FirstLight /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第二章" title="百年考古接力"><TimelinePage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第三章" title="他们不是在“挖宝”"><ToolsPage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第四章" title="点亮三星堆文物图鉴"><RelicsGalleryPage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第五章" title="文物的前世今生"><ArtifactsPage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第六章" title="从出土到修复"><RepairPage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第七章" title="一件文物，两双手"><TwoHandsPage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第八章" title="百年接力中的人"><PeoplePage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第九章" title="考古现场的一天"><WorkdayPage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第十章" title="三星堆为什么重要"><CivilizationPuzzlePage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第十一章" title="小小考古问答"><QuizPage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第十二章" title="写给未来的守护宣言"><VowPage /></PhoneShell>,
+    <PhoneShell {...common} eyebrow="第十三章" title="未解之问"><QuestionsPage /></PhoneShell>,
+    <PhoneShell {...common}><Ending setIndex={setIndex} /></PhoneShell>,
+  ];
+  return pageList[index];
+}
+
+export default function SanxingduiH5() {
+  const [index, setIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (["ArrowDown", "PageDown", " "].includes(e.key)) setIndex((i) => Math.min(pages.length - 1, i + 1));
+      if (["ArrowUp", "PageUp"].includes(e.key)) setIndex((i) => Math.max(0, i - 1));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const handleTouchStart = (e) => {
+    const tag = e.target?.tagName?.toLowerCase();
+    if (["button", "input"].includes(tag)) {
+      setTouchStart(null);
+      return;
+    }
+    setTouchStart(e.touches[0].clientY);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStart == null) return;
+    const dy = touchStart - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 90) setIndex((i) => Math.min(pages.length - 1, Math.max(0, i + (dy > 0 ? 1 : -1))));
+    setTouchStart(null);
+  };
+
+  return (
+    <div className="h-screen w-full overflow-hidden bg-[#07100f]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <AnimatePresence mode="wait">
+        <motion.div key={index} className="h-full" initial={{ opacity: 0, y: 26, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -26, scale: 0.985 }} transition={{ duration: 0.38 }}>
+          <CurrentPage index={index} setIndex={setIndex} />
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}
